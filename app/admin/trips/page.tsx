@@ -380,7 +380,7 @@ export default function TripsPage() {
 
       {/* Trip Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-[9999] overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Background */}
             <div className="bg-white rounded-xl shadow-2xl border border-gray-200">
