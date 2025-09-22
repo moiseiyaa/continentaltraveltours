@@ -5,9 +5,7 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Continental Travel Tours',
 }
 
 export default function RootLayout({
@@ -24,3 +22,4 @@ export default function RootLayout({
     </html>
   )
 }
+<link rel="icon" href="/favicon.png" type="image/png" />

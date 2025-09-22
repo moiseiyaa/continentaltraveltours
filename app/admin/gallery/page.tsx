@@ -1,139 +1,53 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { 
   Plus, 
-  Search, 
-  Edit, 
   Trash2, 
-  Image as ImageIcon,
+  Search, 
   Upload,
+  X,
   Grid,
   List,
-  Filter,
-  Tag
+  Eye,
+  Images
 } from 'lucide-react'
 
 interface GalleryImage {
   id: string
+  url: string
   title: string
   description: string
-  url: string
   category: string
-  tags: string[]
-  uploadedAt: string
-  size: number
-  dimensions: {
-    width: number
-    height: number
-  }
+  uploadDate: string
 }
 
-export default function GalleryManagement() {
+export default function GalleryPage() {
   const [images, setImages] = useState<GalleryImage[]>([])
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: '',
-    tags: '',
-    file: null as File | null
+    files: [] as File[]
   })
 
-  const categories = ['all', 'wildlife', 'landscapes', 'culture', 'activities', 'accommodation']
+  const categories = ['all', 'destinations', 'activities', 'accommodations', 'culture', 'wildlife']
 
-  const filteredImages = images.filter(image => {
-    const matchesSearch = image.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         image.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         image.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesCategory = selectedCategory === 'all' || image.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    setFormData(prev => ({ ...prev, files }))
+  }
 
-  const handleUploadImage = () => {
-    if (!formData.file) return
-
-    // Frontend only - simulate file upload
-    const newImage: GalleryImage = {
-      id: Date.now().toString(),
-      title: formData.title,
-      description: formData.description,
-      url: URL.createObjectURL(formData.file), // Temporary URL for demo
-      category: formData.category,
-      tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-      uploadedAt: new Date().toISOString(),
-      size: formData.file.size,
-      dimensions: {
-        width: 1920, // Mock dimensions
-        height: 1080
-      }
-    }
-    setImages([...images, newImage])
-    setIsUploadDialogOpen(false)
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Frontend only - no actual upload
+    console.log('Upload images:', formData)
+    setShowUploadModal(false)
     resetForm()
-  }
-
-  const handleEditImage = () => {
-    if (!selectedImage) return
-    
-    const updatedImages = images.map(image =>
-      image.id === selectedImage.id
-        ? {
-            ...image,
-            title: formData.title,
-            description: formData.description,
-            category: formData.category,
-            tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
-          }
-        : image
-    )
-    setImages(updatedImages)
-    setIsEditDialogOpen(false)
-    setSelectedImage(null)
-    resetForm()
-  }
-
-  const handleDeleteImage = (imageId: string) => {
-    setImages(images.filter(image => image.id !== imageId))
-  }
-
-  const openEditDialog = (image: GalleryImage) => {
-    setSelectedImage(image)
-    setFormData({
-      title: image.title,
-      description: image.description,
-      category: image.category,
-      tags: image.tags.join(', '),
-      file: null
-    })
-    setIsEditDialogOpen(true)
   }
 
   const resetForm = () => {
@@ -141,364 +55,356 @@ export default function GalleryManagement() {
       title: '',
       description: '',
       category: '',
-      tags: '',
-      file: null
+      files: []
     })
   }
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  const handleDelete = (id: string) => {
+    // Frontend only - no actual delete
+    console.log('Delete image:', id)
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Gallery Management</h1>
-          <p className="text-muted-foreground">Upload and organize your travel photos</p>
+      {/* Enhanced Header */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200/50 p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gallery Management</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Manage your travel images and media</p>
+          </div>
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="flex items-center justify-center px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 focus:ring-2 focus:ring-primary/20 transition-all duration-200 shadow-lg shadow-primary/25 font-medium"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Upload Images
+          </button>
         </div>
-        <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Images
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Upload New Images</DialogTitle>
-              <DialogDescription>
-                Add new photos to your gallery
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="file">Select Image</Label>
-                <Input
-                  id="file"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setFormData({...formData, file: e.target.files?.[0] || null})}
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Image Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    placeholder="Enter image title"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.filter(cat => cat !== 'all').map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder="Enter image description"
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tags">Tags (comma-separated)</Label>
-                <Input
-                  id="tags"
-                  value={formData.tags}
-                  onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                  placeholder="e.g., safari, wildlife, gorilla"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleUploadImage} disabled={!formData.file}>
-                Upload Image
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
 
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Search & Filter</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search images by title, description, or tags..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+      {/* Quick Upload Card */}
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200/50 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Images className="h-5 w-5 text-blue-600" />
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full sm:w-[180px]">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category === 'all' ? 'All Categories' : category.charAt(0).toUpperCase() + category.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="flex rounded-md border border-input">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className="rounded-r-none"
-                >
-                  <Grid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className="rounded-l-none"
-                >
-                  <List className="h-4 w-4" />
-                </Button>
-              </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Quick Upload</h3>
+              <p className="text-sm text-gray-600">Add new images to your gallery</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            Upload Now
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="flex items-center space-x-2 text-gray-600">
+            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+            <span>Multiple file upload</span>
+          </div>
+          <div className="flex items-center space-x-2 text-gray-600">
+            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+            <span>Categorize images</span>
+          </div>
+          <div className="flex items-center space-x-2 text-gray-600">
+            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+            <span>Add descriptions</span>
+          </div>
+          <div className="flex items-center space-x-2 text-gray-600">
+            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+            <span>Organize by type</span>
+          </div>
+        </div>
+      </div>
 
-      {/* Gallery */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <ImageIcon className="h-5 w-5" />
-            <span>Gallery ({filteredImages.length})</span>
-          </CardTitle>
-          <CardDescription>
-            Manage your travel photography collection
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {filteredImages.length === 0 ? (
-            <div className="text-center py-12">
-              <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No images found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchTerm || selectedCategory !== 'all' 
-                  ? 'No images match your search criteria.' 
-                  : 'Get started by uploading your first image.'}
-              </p>
-              {!searchTerm && selectedCategory === 'all' && (
-                <Button onClick={() => setIsUploadDialogOpen(true)}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Your First Image
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className={viewMode === 'grid' 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" 
-              : "space-y-4"
-            }>
-              {filteredImages.map((image) => (
-                <div key={image.id} className={viewMode === 'grid' 
-                  ? "group relative bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
-                  : "flex items-center space-x-4 p-4 bg-card border border-border rounded-lg hover:shadow-md transition-shadow"
-                }>
-                  {viewMode === 'grid' ? (
-                    <>
-                      <div className="aspect-square bg-muted flex items-center justify-center">
-                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-medium text-foreground mb-1 line-clamp-1">{image.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{image.description}</p>
-                        <div className="flex items-center justify-between mb-2">
-                          <Badge variant="secondary" className="text-xs">
-                            {image.category}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {formatFileSize(image.size)}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {image.tags.slice(0, 2).map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                          {image.tags.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{image.tags.length - 2}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(image.uploadedAt).toLocaleDateString()}
-                          </span>
-                          <div className="flex items-center space-x-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openEditDialog(image)}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteImage(image.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex-shrink-0 w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-foreground mb-1">{image.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-2 line-clamp-1">{image.description}</p>
-                        <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                          <span>{image.category}</span>
-                          <span>{formatFileSize(image.size)}</span>
-                          <span>{image.dimensions.width}x{image.dimensions.height}</span>
-                          <span>{new Date(image.uploadedAt).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {image.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openEditDialog(image)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteImage(image.id)}
-                          className="text-destructive hover:text-destructive"
+      {/* Filters and Search */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search images..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+        </div>
+        
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+        >
+          {categories.map(category => (
+            <option key={category} value={category}>
+              {category.charAt(0).toUpperCase() + category.slice(1)}
+            </option>
+          ))}
+        </select>
+
+        <div className="flex bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-md transition-colors ${
+              viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+            }`}
+          >
+            <Grid className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-md transition-colors ${
+              viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'
+            }`}
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Gallery Content */}
+      <div className="bg-white rounded-lg shadow">
+        {images.length === 0 ? (
+          <div className="p-12 text-center">
+            <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No images uploaded</h3>
+            <p className="text-gray-600 mb-4">Start building your gallery by uploading your first images.</p>
+            <button
+              onClick={() => setShowUploadModal(true)}
+              className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Upload Images
+            </button>
+          </div>
+        ) : viewMode === 'grid' ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-6">
+            {images.map((image) => (
+              <div key={image.id} className="group relative bg-gray-100 rounded-lg overflow-hidden aspect-square">
+                <img
+                  src={image.url}
+                  alt={image.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity duration-200 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-2">
+                    <button className="p-2 bg-white rounded-full text-gray-700 hover:text-primary">
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(image.id)}
+                      className="p-2 bg-white rounded-full text-gray-700 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
+                  <p className="text-white text-sm font-medium truncate">{image.title}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Image
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Title
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Upload Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {images.map((image) => (
+                  <tr key={image.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <img
+                        src={image.url}
+                        alt={image.title}
+                        className="h-12 w-12 rounded-lg object-cover"
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{image.title}</div>
+                      <div className="text-sm text-gray-500 truncate max-w-xs">{image.description}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                        {image.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {image.uploadDate}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button className="text-primary hover:text-primary/80">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(image.id)}
+                          className="text-red-600 hover:text-red-800"
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </button>
                       </div>
-                    </>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 z-[9999] overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            {/* Modal Background */}
+            <div className="bg-white rounded-xl shadow-2xl border border-gray-200">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-xl font-semibold text-gray-900">Upload Images</h3>
+                <button
+                  onClick={() => {
+                    setShowUploadModal(false)
+                    resetForm()
+                  }}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              {/* Modal Body */}
+              <div className="p-6">
+                <div className="mb-6">
+                  <p className="text-gray-600">Upload new images to your gallery and organize them by category.</p>
+                </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Images
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                    <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600 mb-2">
+                      Drag and drop images here, or click to select
+                    </p>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg cursor-pointer hover:bg-primary/90 transition-colors"
+                    >
+                      Choose Files
+                    </label>
+                  </div>
+                  {formData.files.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">
+                        {formData.files.length} file{formData.files.length > 1 ? 's' : ''} selected
+                      </p>
+                    </div>
                   )}
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Image</DialogTitle>
-            <DialogDescription>
-              Update image details and metadata
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-title">Image Title</Label>
-                <Input
-                  id="edit-title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  placeholder="Enter image title"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-category">Category</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.filter(cat => cat !== 'all').map((category) => (
-                      <SelectItem key={category} value={category}>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.title}
+                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Category
+                  </label>
+                  <select
+                    required
+                    value={formData.category}
+                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.slice(1).map(category => (
+                      <option key={category} value={category}>
                         {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </SelectItem>
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="Optional description for the images"
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowUploadModal(false)
+                      resetForm()
+                    }}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                  >
+                    Upload Images
+                  </button>
+                </div>
+              </form>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-description">Description</Label>
-              <Textarea
-                id="edit-description"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                placeholder="Enter image description"
-                rows={3}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-tags">Tags (comma-separated)</Label>
-              <Input
-                id="edit-tags"
-                value={formData.tags}
-                onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                placeholder="e.g., safari, wildlife, gorilla"
-              />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleEditImage}>Update Image</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   )
 }
