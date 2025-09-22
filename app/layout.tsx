@@ -5,7 +5,13 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Continental Travel Tours',
+  title: "Continental Travel & Tours - Discover Rwanda and East Africa",
+  description: "Experience the beauty of Rwanda and East Africa with our expert-guided tours. From mountain gorillas to safari adventures, create unforgettable memories.",
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
 }
 
 export default function RootLayout({

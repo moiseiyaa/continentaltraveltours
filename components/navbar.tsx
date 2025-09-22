@@ -28,16 +28,14 @@ export function Navbar() {
       <div className="container-max section-padding">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">CT</span>
-            </div>
-            <div className="hidden sm:block">
-              <a href="/">
-                <h1 className="font-bold text-lg text-foreground">Continental Travel</h1>
-                <p className="text-xs text-muted-foreground -mt-1">& Tours</p>
-              </a>
-            </div>
+          <div className="flex items-center">
+            <a href="/" className="flex items-center">
+              <img 
+                src="/logo.png" 
+                alt="Continental Travel & Tours" 
+                className="h-10 w-auto sm:h-12 lg:h-14" 
+              />
+            </a>
           </div>
 
           {/* Desktop Navigation */}
